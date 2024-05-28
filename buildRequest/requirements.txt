@@ -1,0 +1,4 @@
+requests == 2.31.0
+setuptools == 70.0.0
+pystache == 0.6.5
+urllib3==1.26.3
