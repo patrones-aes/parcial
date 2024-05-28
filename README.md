@@ -25,6 +25,8 @@ proveedores y así no depender de sus detalles."**
 Bajo los supuestos de que el Banco ABC quiere empezar a explorar soluciones en la nube, se diseña
 y crea una solución basada en AWS como proveedor Cloud, a continución se muestra el diagrama
 de despliegue:
+![image](https://github.com/patrones-aes/parcial/assets/24567258/dcce9e74-9c4b-47f8-9a19-b6fefedbf15e)
+
 
 
 # Despliegue
