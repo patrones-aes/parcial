@@ -42,7 +42,7 @@ siguiente link: https://docs.aws.amazon.com/lambda/latest/dg/python-package.html
    ohio y replica en Norte de Virginia y la otra es para la persistencia y gestion de los mensages.
 
    Nota: Los recursos creados deben tener los permisos requeridos para su correcto funcionamiento
-    por ejemplo, las lambdas deben porder leer y escribir en las tabls de dynamo
+    por ejemplo, las lambdas deben porder leer y escribir en las tablas de dynamo
 5. Desplegar el .zip de la lambda en AWS.
 
 El siguiente bloque de código puede ser utilizado para aprobicionar el APiGategay en aws,

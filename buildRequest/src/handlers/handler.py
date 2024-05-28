@@ -2,8 +2,11 @@ import json
 import requests
 import pystache
 import decimal
+import boto3
+from datetime import datetime, timedelta
 
-from src.servives.dynamoDB import getItemDynamoInvoiceStatus, getItemDynamo, putItemDynamo
+s3 = boto3.client("s3", region_name="us-east-2")
+dynamodb = boto3.resource("dynamodb", region_name="us-east-2")
 
 
 def handlerEvent(event, context):
@@ -109,8 +112,8 @@ def handlerEvent(event, context):
                                                                                             tempJson[
                                                                                                 "bodyCkeckBill"],
                                                                                             tempJson[
-                                                                                                "headers"]))
-            result = requests.post(tempJson["url"], tempJson["bodyCkeckBill"], headers=tempJson["headers"])
+                                                                                                "headersGET"]))
+            result = requests.post(tempJson["url"], tempJson["bodyCkeckBill"], headers=tempJson["headersGET"])
             print(result.text)
             responseLa["body"] = result.text
 
@@ -121,6 +124,36 @@ def default_type_error_handler(obj):
     if isinstance(obj, decimal.Decimal):
         return int(obj)
     raise TypeError
+
+
+def getItemDynamo(cod_proveedor):
+    table = dynamodb.Table("Proveedores")
+    response = table.get_item(Key={"cod_proveedor": cod_proveedor})
+    return response
+
+
+def getItemDynamoInvoiceStatus(cod_proveedor):
+    table = dynamodb.Table("registroTrans")
+    response = table.get_item(Key={"nro_invoice": cod_proveedor})
+    return response
+
+
+def putItemDynamo(data, isttl):
+    current_time = int(datetime.now().timestamp())
+
+    expiration_time = ""
+    if isttl:
+        expiration_time = int((datetime.now() + timedelta(minutes=5)).timestamp())
+
+    print("expiration_time ", expiration_time)
+    table = dynamodb.Table("registroTrans")
+    response = table.put_item(Item={
+        "nro_invoice": data["factura"],
+        "createAT": current_time,
+        "status": data["status"],
+        "TTL": expiration_time
+    })
+    return response
 
 
 """
@@ -134,12 +167,11 @@ def default_type_error_handler(obj):
         }
 """
 
-
 """def test():
     event = {
-        'httpMethod': 'POST',
-        'body': '{"factura": 1002568415,"convenio": 100,"cliente":"jesus velasquez","id":1047, "valor":100000}',
-        'queryStringParameters': {'convenio': '100', 'factura': '100555555'},
+        'httpMethod': 'GET',
+        'body': None,
+        'queryStringParameters': {'convenio': '200', 'factura': '200555555'},
     }
     print(handlerEvent(event, ""))
 
