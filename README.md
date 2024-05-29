@@ -149,3 +149,82 @@ remplazando los valores:
 Al seguir los pasos anteriores, tendremos listo nuestro servicio para ser probado.
 
 # Uso
+El API del expone 1 recurso llamado **/bill** el cual tiene dos metodos implmeentados, **GET** 
+para realizar consultas y **POST** para realizar el pago, a continucación se deja el curls
+de solicitudes para cada uno:
+
+### GET
+````
+curl --location 'https://API_ID.execute-api.us-east-2.amazonaws.com/dev/bill?factura=100555555&convenio=100'
+````
+### POST
+````
+curl --location 'https://API_ID.execute-api.us-east-2.amazonaws.com/dev/bill' \
+--header 'Content-Type: application/json' \
+--data '{
+    "factura": 100256841567,
+    "convenio": 100,
+    "cliente":"jesus velasquez",
+    "id":1047,
+    "valor":100000
+}'
+````
+
+La respuesta de cada solicitud dependerá de cada proveedor
+
+## Control de mensajes
+En la tabla de **message** o la que se halla creado para el control de mensajes se almacena 
+información sobre las facturas gestionadas y se manejan 2 estados: **paid** ó **in-progress**,
+ el estado paid indica que la factura ya fué pagada y no se puede volver a pagar y el estado
+in-progress indica que hay un proceso de pago y esta pendiente de confirmación.
+
+## Configurabilidad
+Para este atributo de calidad, se utiliza parametrización po lo cual se puede hacer en tiempo
+de ejecución sin afectar la disponibilidad del sistema, por lo cual, la tabla **providers** o
+la definida para almacenar la información d elos proveedores contine toda la informacion necesaria
+para su consumo, esto incluye las siguientes columnas:
+
+### Servicios tipo REST
+Se utiliza mapeo de plantillas utilizando **pystache** la cual es una librería basada en Moustache
+lo cual es un sistema de plantillas sin lógica.
+
+````json
+{
+ "cod_proveedor": 100,
+ "body": "{\"nro_factura\":{{factura}},\"nro_convenio\":{{convenio}},\"nombre_cliente\":\"{{cliente}}\",\"id_cliente\":{{id}},\"valor\":{{valor}}}",
+ "headers": {
+  "Content-Type": "application/json"
+ },
+ "queries_params": "{\"nro_factura\":{{factura}},\"convenio\":{{convenio}}}",
+ "status": "active",
+ "type": "REST",
+ "url": "http://demo5711377.mockable.io/factura",
+ "url_params": [
+ ]
+}
+````
+
+### Servicios tipo SOAP
+Se utiliza mapeo de plantillas utilizando **pystache** la cual es una librería basada en Moustache
+lo cual es un sistema de plantillas sin lógica.
+````json
+{
+ "cod_proveedor": 200,
+ "bodyCkeckBill": "<?xml version=\"1.0\"?>\r\n<soap:Envelope\r\nxmlns:soap=\"http://www.w3.org/2001/12/soap-envelope\"\r\nsoap:encodingStyle=\"http://www.w3.org/2001/12/soap-encoding\">\r\n    <soap:Body xmlns:m=\"http://www.example.org/stock\">\r\n        <m:GetPriceBill>\r\n            <m:Nro_Convenio>{{convenio}}</m:Nro_Convenio>\r\n            <m:Nro_Factura>{{factura}}</m:Nro_Factura>\r\n        </m:GetPriceBill>\r\n    </soap:Body>\r\n</soap:Envelope>",
+ "bodyPayBill": "<?xml version=\"1.0\"?>\r\n<soap:Envelope\r\nxmlns:soap=\"http://www.w3.org/2001/12/soap-envelope\"\r\nsoap:encodingStyle=\"http://www.w3.org/2001/12/soap-encoding\">\r\n    <soap:Body xmlns:m=\"http://www.example.org/stock\">\r\n        <m:GetPriceBill>\r\n            <m:Nro_Convenio>{{convenio}}</m:Nro_Convenio>\r\n            <m:Nro_Factura>{{factura}}</m:Nro_Factura>\r\n            <m:ID_Cliente>{{id}}</m:ID_Cliente>\r\n        </m:GetPriceBill>\r\n    </soap:Body>\r\n</soap:Envelope>",
+ "headers": {
+  "Content-Type": "text/xml",
+  "SOAPAction": "PAGOFactura"
+ },
+ "headersGET": {
+  "Content-Type": "text/xml",
+  "SOAPAction": "GETFactura"
+ },
+ "queries_params": "{\"nro_factura\":{{factura}},\"convenio\":{{convenio}}}",
+ "status": "active",
+ "type": "SOAP",
+ "url": "http://demo5711377.mockable.io/SOAP_factura",
+ "url_params": [
+ ]
+}
+````

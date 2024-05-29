@@ -127,13 +127,13 @@ def default_type_error_handler(obj):
 
 
 def getItemDynamo(cod_proveedor):
-    table = dynamodb.Table("Proveedores")
+    table = dynamodb.Table("providers")
     response = table.get_item(Key={"cod_proveedor": cod_proveedor})
     return response
 
 
 def getItemDynamoInvoiceStatus(cod_proveedor):
-    table = dynamodb.Table("registroTrans")
+    table = dynamodb.Table("messages")
     response = table.get_item(Key={"nro_invoice": cod_proveedor})
     return response
 
@@ -146,7 +146,7 @@ def putItemDynamo(data, isttl):
         expiration_time = int((datetime.now() + timedelta(minutes=5)).timestamp())
 
     print("expiration_time ", expiration_time)
-    table = dynamodb.Table("registroTrans")
+    table = dynamodb.Table("messages")
     response = table.put_item(Item={
         "nro_invoice": data["factura"],
         "createAT": current_time,
@@ -163,15 +163,16 @@ def putItemDynamo(data, isttl):
 """ Contrato de entrada
         {
             "factura":1002568415,
-            "convenio":100
+            "convenio":10
         }
 """
+
 
 """def test():
     event = {
         'httpMethod': 'GET',
-        'body': None,
-        'queryStringParameters': {'convenio': '200', 'factura': '200555555'},
+        'body': '{"factura": 100256841567,"convenio": 100,"cliente":"jesus velasquez","id":1047,"valor":100000}',
+        'queryStringParameters': {'convenio': '100', 'factura': '100123456'},
     }
     print(handlerEvent(event, ""))
 
